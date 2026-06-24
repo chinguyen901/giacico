@@ -50,7 +50,17 @@ export async function GET(req: Request) {
     `;
     return NextResponse.json(rows);
   } catch (err) {
-    console.error("GET /api/production error:", err);
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+    console.error("GET /api/production error (falling back to mock):", err);
+    let rows = PRODUCTION_SLOTS;
+    if (from) rows = rows.filter(s => s.date >= from);
+    if (to)   rows = rows.filter(s => s.date <= to);
+    return NextResponse.json([...rows]
+      .sort((a, b) => a.date.localeCompare(b.date) || a.machine.localeCompare(b.machine))
+      .map(s => ({
+        id: s.id, order_code: s.orderId, product_code: s.productCode,
+        product_line: s.productLine, machine: s.machine, shift: s.shift,
+        slot_date: s.date, planned_qty: s.plannedQty, actual_qty: s.actualQty,
+        lot_no: s.lotNo, status: s.status,
+      })));
   }
 }

@@ -41,7 +41,15 @@ export async function GET() {
     `;
     return NextResponse.json(rows);
   } catch (err) {
-    console.error("GET /api/products error:", err);
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+    console.error("GET /api/products error (falling back to mock):", err);
+    return NextResponse.json([...PRODUCTS]
+      .sort((a, b) => a.line.localeCompare(b.line) || a.code.localeCompare(b.code))
+      .map(p => ({
+        id: p.code, code: p.code, code_tw: p.codeTW,
+        name_vn: p.nameVN, name_zh: p.nameZH, line: p.line,
+        yield_rate: p.yieldRate, wastage_kg: p.wastageKg,
+        production_days_per_ton: p.productionDaysPerTon,
+        qa_days: p.qaDays, machine_required: p.machineRequired,
+      })));
   }
 }

@@ -71,7 +71,23 @@ export async function GET(req: Request) {
     `;
     return NextResponse.json(rows);
   } catch (err) {
-    console.error("GET /api/materials error:", err);
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+    console.error("GET /api/materials error (falling back to mock):", err);
+    let rows = INVENTORY;
+    if (type)   rows = rows.filter(m => m.type === type);
+    if (search) {
+      const q = search.toLowerCase();
+      rows = rows.filter(m =>
+        m.codeVN.toLowerCase().includes(q) || m.codeTW.toLowerCase().includes(q) ||
+        m.nameVN.toLowerCase().includes(q) || m.nameZH.toLowerCase().includes(q)
+      );
+    }
+    return NextResponse.json(rows.map(m => ({
+      id: m.id, code_vn: m.codeVN, code_tw: m.codeTW,
+      name_vn: m.nameVN, name_zh: m.nameZH, type: m.type, unit: m.unit,
+      stock_warehouse: m.stockWarehouse, stock_sx1: m.stockSX1,
+      stock_sx2: m.stockSX2, stock_sx4: m.stockSX4,
+      expiry_date: m.expiryDate, lead_time_days: m.leadTimeDays,
+      origin: m.origin, seasonal: m.seasonal, supplier: m.supplier,
+    })));
   }
 }

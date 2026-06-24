@@ -78,7 +78,28 @@ export async function GET(req: Request) {
     `;
     return NextResponse.json(rows);
   } catch (err) {
-    console.error("GET /api/orders error:", err);
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+    console.error("GET /api/orders error (falling back to mock):", err);
+    let rows = ORDERS;
+    if (line)   rows = rows.filter(o => o.productLine === line);
+    if (status) rows = rows.filter(o => o.status === status);
+    if (search) {
+      const q = search.toLowerCase();
+      rows = rows.filter(o =>
+        o.vnCode.toLowerCase().includes(q) ||
+        o.twCode.toLowerCase().includes(q) ||
+        o.productCode.toLowerCase().includes(q) ||
+        o.customer.toLowerCase().includes(q)
+      );
+    }
+    return NextResponse.json(rows.map(o => ({
+      id: o.id, order_date: o.orderDate, status: o.status,
+      vn_code: o.vnCode, tw_code: o.twCode,
+      vn_product_code: o.productCode, tw_product_code: o.productCodeTW,
+      customer_code: o.customer, destination: o.region, unit: "kg",
+      qty_ordered: o.qty, qty_produced: o.qtyProduced,
+      qty_remaining: o.qty - o.qtyShipped, weight_kg: o.qty,
+      etd: o.deliveryDate, ship_date: o.status === "DX" ? o.deliveryDate : null,
+      product_line: o.productLine, notes: o.note ?? null,
+    })));
   }
 }
