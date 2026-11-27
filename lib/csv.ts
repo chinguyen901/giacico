@@ -4,7 +4,7 @@ export function toCsv(rows: Record<string, unknown>[]): string {
   const headers = Object.keys(rows[0])
   const escape = (val: unknown) => {
     if (val === null || val === undefined) return ''
-    const str = String(val)
+    const str = typeof val === 'object' ? JSON.stringify(val) : String(val)
     if (/[",\n]/.test(str)) return '"' + str.replace(/"/g, '""') + '"'
     return str
   }

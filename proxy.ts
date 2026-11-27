@@ -31,5 +31,5 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/api/interactions', '/api/export'],
+  matcher: ['/', '/api/interactions', '/api/export', '/api/raw'],
 }

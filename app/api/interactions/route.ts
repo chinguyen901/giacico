@@ -16,9 +16,14 @@ export async function GET(req: NextRequest) {
   const offsetIdx = params.length + 2
 
   const rows = await sql(
-    `SELECT interaction_id, ani, dnis, customer_type, vip_matched, routing_decision,
-            queue_name, team_name, agent_name, call_status, started_at, ended_at,
-            duration_seconds, disconnect_reason
+    `SELECT interaction_id, org_id, flow_id, flow_version_label, entry_point_id,
+            ani, dnis, pstn_region, customer_type, vip_matched, routing_decision,
+            queue_id, queue_name, team_id, team_name, tenant_id,
+            agent_id, agent_name, agent_email, agent_session_id,
+            call_status, started_at, answered_at, ended_at,
+            duration_seconds, talk_duration_seconds, hold_duration_seconds,
+            wrapup_code, disconnect_reason, transfer_count, conference_count,
+            metadata
      FROM call_interactions
      ${where}
      ORDER BY started_at DESC NULLS LAST
