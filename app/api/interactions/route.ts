@@ -23,10 +23,10 @@ export async function GET(req: NextRequest) {
             call_status, started_at, answered_at, ended_at,
             duration_seconds, talk_duration_seconds, hold_duration_seconds,
             wrapup_code, disconnect_reason, transfer_count, conference_count,
-            metadata
+            metadata, last_event_type, last_event_at, created_at, updated_at
      FROM call_interactions
      ${where}
-     ORDER BY started_at DESC NULLS LAST
+     ORDER BY updated_at DESC NULLS LAST
      LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
     listParams
   )

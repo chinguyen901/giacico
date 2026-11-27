@@ -34,11 +34,21 @@ export async function POST(req: NextRequest) {
 
   let body: Record<string, any>
 
+  const rawText = await req.text()
+
   try {
-    body = await req.json()
-  } catch {
+    body = JSON.parse(rawText)
+  } catch (err) {
+    // Log nguyên văn body lỗi để xem trong Vercel Logs — giúp biết chính xác
+    // Webex gửi lên cái gì khi JSON không parse được (dấu ngoặc kép cong,
+    // thiếu giá trị, ký tự lạ do copy-paste...).
+    console.error('[WEBEX_EVENTS_INVALID_JSON]', {
+      error: err instanceof Error ? err.message : String(err),
+      rawBody: rawText,
+    })
+
     return NextResponse.json(
-      { error: 'invalid json body' },
+      { error: 'invalid json body', raw_body_preview: rawText.slice(0, 2000) },
       { status: 400 }
     )
   }
@@ -86,8 +96,18 @@ export async function POST(req: NextRequest) {
     body.schedule_source_interaction_id,
     body.ScheduleSourceInteractionId
   )
-  // Headers có thể là object (SIP headers) — giữ nguyên, không ép chuỗi.
-  const headers = body.Headers ?? body.headers
+  // NewPhoneContact.Headers chứa dấu `"` chưa escape khi Webex nhúng vào JSON body
+  // (ví dụ provider="CcpWxSinchUS") → luôn làm vỡ JSON nếu để trong body.
+  // Nên ưu tiên đọc từ HTTP header riêng (x-webex-headers) — không bị giới hạn
+  // escape như JSON string. Vẫn giữ fallback đọc từ body cho payload test thủ công.
+  const headers = req.headers.get('x-webex-headers') ?? body.Headers ?? body.headers
+
+  // Debug tạm thời: xem Webex có thực sự gửi header x-webex-headers không,
+  // và liệt kê toàn bộ header key thực nhận được để đối chiếu nếu không thấy.
+  console.log('[WEBEX_EVENTS_HEADERS_DEBUG]', {
+    'x-webex-headers': req.headers.get('x-webex-headers'),
+    allHeaderKeys: Array.from(req.headers.keys()),
+  })
 
   const ani = pick(body.calling_side?.ani, body.ANI, body.ani)
   const dnis = pick(body.calling_side?.dnis, body.DNIS, body.dnis)

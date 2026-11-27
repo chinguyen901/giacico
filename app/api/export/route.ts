@@ -17,10 +17,11 @@ export async function GET(req: NextRequest) {
             agent_id, agent_name, agent_email, agent_session_id,
             call_status, started_at, answered_at, ended_at,
             duration_seconds, talk_duration_seconds, hold_duration_seconds, wrapup_code,
-            disconnect_reason, transfer_count, conference_count, metadata
+            disconnect_reason, transfer_count, conference_count, metadata,
+            last_event_type, last_event_at, created_at, updated_at
      FROM call_interactions
      ${where}
-     ORDER BY started_at DESC NULLS LAST
+     ORDER BY updated_at DESC NULLS LAST
      LIMIT ${MAX_EXPORT_ROWS}`,
     params
   )
