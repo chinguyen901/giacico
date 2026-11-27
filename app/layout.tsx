@@ -1,22 +1,15 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { LangProvider } from "@/lib/i18n";
-import Navbar from "@/components/Navbar";
+import './globals.css'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Hệ Thống Quản Lý Sản Xuất | 生產管理系統",
-  description: "Web App quản lý sản xuất AV - ND - GV",
-};
+  title: 'Webex Call Data Viewer',
+  description: 'Xem và export dữ liệu cuộc gọi thu thập từ Webex Contact Center',
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi">
-      <body className="font-sans bg-slate-50 min-h-screen">
-        <LangProvider>
-          <Navbar />
-          <main className="max-w-[1600px] mx-auto px-4 py-6">{children}</main>
-        </LangProvider>
-      </body>
+      <body>{children}</body>
     </html>
-  );
+  )
 }

@@ -1,13 +1,14 @@
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { neon } from '@neondatabase/serverless'
 
-let _sql: NeonQueryFunction<false, false> | null = null;
-
-export function getDb(): NeonQueryFunction<false, false> {
-  if (!_sql) {
-    if (!process.env.DATABASE_URL) {
-      throw new Error("DATABASE_URL is not set");
-    }
-    _sql = neon(process.env.DATABASE_URL);
+/**
+ * neon() trả về một hàm có thể gọi theo 2 cách:
+ *  - sql`SELECT ...`          (tagged template, query cố định)
+ *  - sql(text, params)        (dùng khi cần build query động/có filter)
+ */
+export function getSql() {
+  const url = process.env.DATABASE_URL
+  if (!url) {
+    throw new Error('DATABASE_URL is not set')
   }
-  return _sql;
+  return neon(url)
 }
